@@ -49,7 +49,7 @@ s3 = [
   "s3fs>=2023.12.2",
 ]
 processing = [
-    "fasttext-numpy2-wheel",
+    #"fasttext-numpy2-wheel",
     "nltk",
     "inscriptis",
 #   "readability-lxml @ git+https://github.com/huggingface/python-readability.git@speedup",
