@@ -47,8 +47,8 @@ class FastTextClassifierFilter(BaseFilter):
         remove_labels: Tuple[str, float] | list[Tuple[str, float]] | None = None,
         save_labels_in_metadata: bool = True,
         exclusion_writer: DiskWriter | None = None,
-        newline_replacement="",    # 预测前替换换行符的替换字符
-        filter_mode: str = SPLIT_TEXT_DOCUMENTS,    # 预测和过滤的粒度（文档、段落或句子）
+        newline_replacement="",  # 预测前替换换行符的替换字符
+        filter_mode: str = SPLIT_TEXT_DOCUMENTS,  # 预测和过滤的粒度（文档、段落或句子）
         language: str = Languages.chinese,  # 语言设置
         debug: bool = False,  # 添加调试模式
     ):
@@ -88,8 +88,8 @@ class FastTextClassifierFilter(BaseFilter):
                     )
         return self._model
 
-    def filter_my(self, doc: Document) -> bool:    # 过滤文档
-        def check_label_scores(unit_scores):    # 检查标签得分
+    def filter_my(self, doc: Document) -> bool:  # 过滤文档
+        def check_label_scores(unit_scores):  # 检查标签得分
             if self.keep_labels:
                 return any(
                     unit_scores.get(f"__label__{label}", -9e9) >= min_score for label, min_score in self.keep_labels
@@ -101,33 +101,36 @@ class FastTextClassifierFilter(BaseFilter):
 
         # 使用与训练时相同的处理方式
         # if self.language == "zh":
-        import jieba
         import re
+
+        import jieba
+
         original_text = doc.text
-        processed_text = re.sub(r'\s+', ' ', ' '.join(jieba.lcut(doc.text)))
+        processed_text = re.sub(r"\s+", " ", " ".join(jieba.lcut(doc.text)))
         # else:
         #     processed_text = doc.text.strip().replace("\n", self.newline_replacement)
 
         # 预测
         labels, scores = self.model.predict(processed_text, k=-1, threshold=0)
-        
+
         # 检查标签得分
         unit_scores = dict(zip(labels, scores))
         should_keep = check_label_scores(unit_scores)
-        
+
         # 更新文档
         if should_keep:
             doc.text = original_text
             if self.save_labels_in_metadata:
-                doc.metadata.update({label: score for label, score in zip(labels, scores)})
+                doc.metadata.update(dict(zip(labels, scores)))
             return True
         else:
             return False
-        
-    
+
     def filter(self, doc: Document) -> bool:
-        import jieba
         import re
+
+        import jieba
+
         def check_label_scores(unit_scores):
             if self.keep_labels:
                 return any(
@@ -143,7 +146,7 @@ class FastTextClassifierFilter(BaseFilter):
         label_scores = defaultdict(list)
         for unit in units:
             # labels, scores = self.model.predict(unit.strip().replace("\n", self.newline_replacement), k=-1)
-            processed_text = re.sub(r'\s+', ' ', ' '.join(jieba.lcut(unit)))
+            processed_text = re.sub(r"\s+", " ", " ".join(jieba.lcut(unit)))
             labels, scores = self.model.predict(processed_text, k=-1, threshold=0)
             if self.save_labels_in_metadata:
                 for label, score in zip(labels, scores):
@@ -157,5 +160,3 @@ class FastTextClassifierFilter(BaseFilter):
         if self.save_labels_in_metadata:
             doc.metadata.update({label: np.mean(scores).item() for label, scores in label_scores.items()})
         return not not doc.text.strip()
-
-    

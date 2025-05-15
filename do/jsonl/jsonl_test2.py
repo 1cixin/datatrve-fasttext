@@ -21,12 +21,12 @@ pipeline_1 = [
     
     # CarMoldFilter(),
 
-    FastTextClassifierFilter(
-        keep_labels=[("mold", 0.5)],
-        model_url="D:/Projects/fasttext/model_fasttext_0514.bin",
-        filter_mode="DOCUMENT",
-        save_labels_in_metadata=True  # 确保保存标签到元数据
-    ),
+    # FastTextClassifierFilter(
+    #     keep_labels=[("mold", 0.5)],
+    #     model_url="D:/Projects/fasttext/model_fasttext_0514.bin",
+    #     filter_mode="DOCUMENT",
+    #     save_labels_in_metadata=True  # 确保保存标签到元数据
+    # ),
         # exclusion_writer=JsonlWriter(    # 保存被过滤掉的数据（不符合条件的数据）
         #     output_folder="./output_data/excluded_fasttext_filter",
         #     output_filename="${rank}.jsonl.gz",    # 默认压缩成jsonl.gz文件

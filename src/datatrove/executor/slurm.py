@@ -164,7 +164,6 @@ class SlurmPipelineExecutor(PipelineExecutor):
         )
         self.requeue = requeue
 
-
     def run(self):
         """
             This method is responsible for correctly invoking `self._run_for_rank` for each task that is to be run.
@@ -211,8 +210,8 @@ class SlurmPipelineExecutor(PipelineExecutor):
                     "mem-per-cpu": "1G",
                     "dependency": f"afterok:{self.job_id}",
                 },
-                f'merge_stats {self.logging_dir.resolve_paths("stats")} '
-                f'-o {self.logging_dir.resolve_paths("stats.json")}',
+                f"merge_stats {self.logging_dir.resolve_paths('stats')} "
+                f"-o {self.logging_dir.resolve_paths('stats.json')}",
             ),
             self.job_id_retriever,
         )
@@ -226,7 +225,7 @@ class SlurmPipelineExecutor(PipelineExecutor):
         """
         dependency = []
         if self.depends_job_id:
-            dependency.append(f"{'afterany' if self.run_on_dependency_fail else 'afterok'}:" f"{self.depends_job_id}")
+            dependency.append(f"{'afterany' if self.run_on_dependency_fail else 'afterok'}:{self.depends_job_id}")
         if self.job_id and not self.max_array_launch_parallel:
             dependency.append(f"afterany:{self.job_id}")
         return ",".join(dependency)
@@ -237,9 +236,9 @@ class SlurmPipelineExecutor(PipelineExecutor):
         Returns:
 
         """
-        assert not self.depends or (
-            isinstance(self.depends, SlurmPipelineExecutor)
-        ), "depends= must be a SlurmPipelineExecutor"
+        assert not self.depends or (isinstance(self.depends, SlurmPipelineExecutor)), (
+            "depends= must be a SlurmPipelineExecutor"
+        )
         if self.depends:
             # take care of launching any unlaunched dependencies and getting their slurm job ids
             if not self.depends.job_id:
